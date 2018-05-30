@@ -108,6 +108,14 @@ psec.then(cycles => {
 });
 ```
 
+The `cycles` object maps test names to their cycle objects.
+
+Each `cycle` object has the following properties:
+- `name: string` the test name
+- `hz: number` the number of calls per second
+- `size: number` the number of samples used
+- `time: number` measurement time (*not* the combined sample time)
+
 &nbsp;
 
 ## Configuration
