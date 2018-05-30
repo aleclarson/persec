@@ -1,0 +1,7 @@
+{
+  "name": "persec",
+  "version": "1.0.0",
+  "repository": "https://github.com/aleclarson/persec.git",
+  "description": "Tiny, modern benchmarking library",
+  "license": "MIT"
+}
