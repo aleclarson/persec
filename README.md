@@ -110,11 +110,20 @@ psec.then(cycles => {
 
 The `cycles` object maps test names to their cycle objects.
 
-Each `cycle` object has the following properties:
+Each `cycle` object contains:
 - `name: string` the test name
 - `hz: number` the number of calls per second
 - `size: number` the number of samples used
 - `time: number` measurement time (*not* the combined sample time)
+- `stats: Object`
+
+The `stats` object contains:
+- `deviation: number` the standard deviation
+- `mean: number` the average sample time
+- `moe: number` the margin of error
+- `rme: number` the *relative* margin of error
+- `sem: number` the standard error of the mean
+- `variance: number` the sample variance
 
 &nbsp;
 
