@@ -1,4 +1,4 @@
-# persec v1.1.0
+# persec v1.2.0
 
 > ```
 > npm install persec
