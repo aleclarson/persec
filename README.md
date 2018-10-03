@@ -25,11 +25,11 @@ Tiny, modern benchmarking library
 ## Usage
 
 Every `psec()` call in a single tick of the event loop is batched
-into the same test suite. This suite is measured in the *next* tick
+into the same test suite. This suite is measured in the _next_ tick
 of the event loop, one test function at any given time.
 
 ```js
-const psec = require('persec');
+const psec = require('persec')
 
 psec.configure({
   delay: 0.005,
@@ -39,29 +39,34 @@ psec.configure({
   onCycle(cycle) {},
   onError(e) {},
   onFinish() {},
-});
+})
 
-const fs = require('fs');
-const file = './foo.txt';
+const fs = require('fs')
+const file = './foo.txt'
 
 psec('fs.readFileSync', () => {
-  fs.readFileSync(file);
-});
+  fs.readFileSync(file)
+})
 
-psec('fs.readFile', (done) => {
-  fs.readFile(file, done);
-});
+psec('fs.readFile', done => {
+  fs.readFile(file, done)
+})
 
 // node v10+
 if (10 <= parseFloat(process.versions.node)) {
-  psec('fs.promises.readFile', async (done) => {
-    await fs.promises.readFile(file);
-    done();
-  });
+  psec('fs.promises.readFile', async done => {
+    await fs.promises.readFile(file)
+    done()
+  })
 }
+
+// Run a function before or after each sample.
+psec.beforeEach(() => {})
+psec.afterEach(() => {})
 ```
 
 Try the above example:
+
 ```sh
 git clone https://github.com/aleclarson/parsec
 ./parsec/example.js
@@ -76,15 +81,15 @@ Use `psec.each()` if you have multiple test cases.
 ```js
 // Each test case is an arbitrary value that is passed
 // to the test factory, which defines the test functions.
-const cases = [a, b, c];
+const cases = [a, b, c]
 psec.each(cases, function(value) {
   // You usually want a header for each test case.
-  console.log('\nvalue =', value);
+  console.log('\nvalue =', value)
 
   // Define your test functions in here!
-  psec('foo', () => {});
-  psec('bar', () => {});
-});
+  psec('foo', () => {})
+  psec('bar', () => {})
+})
 ```
 
 Test cases are measured in order, one at a time.
@@ -104,24 +109,26 @@ Use `psec.then()` if you want to know when the next suite finishes.
 
 ```js
 psec.then(cycles => {
-  console.log(cycles);
-});
+  console.log(cycles)
+})
 ```
 
 The `cycles` object maps test names to their cycle objects.
 
 Each `cycle` object contains:
+
 - `name: string` the test name
 - `hz: number` the number of calls per second
 - `size: number` the number of samples used
-- `time: number` measurement time (*not* the combined sample time)
+- `time: number` measurement time (_not_ the combined sample time)
 - `stats: Object`
 
 The `stats` object contains:
+
 - `deviation: number` the standard deviation
 - `mean: number` the average sample time
 - `moe: number` the margin of error
-- `rme: number` the *relative* margin of error
+- `rme: number` the _relative_ margin of error
 - `sem: number` the standard error of the mean
 - `variance: number` the sample variance
 
