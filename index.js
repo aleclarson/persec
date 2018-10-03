@@ -313,15 +313,14 @@ function onCycle(cycle, opts) {
   let rme = '\xb1' + cycle.stats.rme.toFixed(2) + '%'
 
   // add colors
-  hz = rgb(0, 1, 5) + hz + '\x1b[0m'
-  rme = rgb(5, 5, 2) + rme + '\x1b[0m'
+  hz = color(34) + hz + color(0)
+  rme = color(33) + rme + color(0)
 
   const padding = ' '.repeat(opts.width - cycle.name.length)
   console.log(`${cycle.name}${padding}  ${hz} ops/sec  ${rme}`)
 }
 
-// ansi 256 colors
-function rgb(r, g, b) {
-  const i = 16 + 36 * r + 6 * g + b
-  return `\x1b[38;5;${i}m`
+// ansi 8 colors
+function color(i) {
+  return `\x1b[${i}m`
 }
