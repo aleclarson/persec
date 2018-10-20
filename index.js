@@ -54,9 +54,24 @@ psec.afterEach = function(fn) {
   ctx.after.push(fn)
 }
 
-// For each case in the `cases` array, run a new benchmark using the `setup` function.
-// The `cases` array may contain any value useful for configuring a benchmark.
-// Think of your `setup` function as a benchmark factory.
+/**
+ * Create a function that takes an array of cases and
+ * runs a test group for each case.
+ *
+ * The given `setup` function is what creates the tests
+ * by calling persec.
+ */
+psec.bench = function(setup) {
+  let run = cases => psec.each(cases, setup)
+  run.one = caseValue => psec.each([caseValue], setup)
+  return run
+}
+
+/**
+ * For each case in the `cases` array, run a new benchmark using the `setup` function.
+ * The `cases` array may contain any value useful for configuring a benchmark.
+ * Think of your `setup` function as a benchmark factory.
+ */
 psec.each = async function(cases, setup) {
   let parent = ctx
   for (let i = 0; i < cases.length; i++) {
