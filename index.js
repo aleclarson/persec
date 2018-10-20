@@ -62,8 +62,8 @@ psec.afterEach = function(fn) {
  * by calling persec.
  */
 psec.bench = function(setup) {
-  let run = cases => psec.each(cases, setup)
-  run.one = caseValue => psec.each([caseValue], setup)
+  let run = cases => psec.each(cases, setup).then(() => cases)
+  run.one = caseValue => run([caseValue])
   return run
 }
 
@@ -75,8 +75,14 @@ psec.bench = function(setup) {
 psec.each = async function(cases, setup) {
   let parent = ctx
   for (let i = 0; i < cases.length; i++) {
-    ctx = new Benchmark()
-    setup(cases[i])
+    try {
+      ctx = new Benchmark()
+      await setup(cases[i])
+      ctx.run()
+      await ctx.promise
+    } catch (e) {
+      console.error(e.stack)
+    }
   }
   ctx = parent
 }
@@ -114,6 +120,10 @@ function flush() {
 /** Run a benchmark */
 async function run(bench) {
   let { tests, config } = bench
+
+  if (tests.length == 0) {
+    throw Error('Benchmark has no test cycles')
+  }
 
   // Find the longest test name.
   config.width = tests.reduce(longest, 0)

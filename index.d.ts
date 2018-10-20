@@ -13,8 +13,8 @@ export function afterEach(fn: () => void): void
 export function bench<T>(
   setup: SuiteFn<T>
 ): {
-  (cases: T[]): Promise<void>
-  one(caseValue: T): Promise<void>
+  (cases: T[]): Promise<T[]>
+  one(caseValue: T): Promise<T[]>
 }
 
 /** @deprecated Run a factory function for each case */
