@@ -32,7 +32,7 @@ let ctx = new Benchmark()
 /** The queue of benchmarks ready to run. The active benchmark is first. */
 let queue = []
 
-/** Register a test case */
+/** Register a test cycle */
 function psec(name, test) {
   ctx.tests.push({
     name,
@@ -41,6 +41,7 @@ function psec(name, test) {
   ctx.run()
 }
 
+psec.cycle = psec
 module.exports = psec
 
 /** Run the given function **before** each sample */
