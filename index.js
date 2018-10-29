@@ -32,13 +32,21 @@ let ctx = new Benchmark()
 /** The queue of benchmarks ready to run. The active benchmark is first. */
 let queue = []
 
-/** Register a test cycle */
-function psec(name, test) {
-  ctx.tests.push({
-    name,
-    test,
-  })
+/** Register a test to cycle */
+function psec(name, run) {
+  const test = { name, run, before: null, after: null }
+  ctx.tests.push(test)
   ctx.run()
+  return {
+    beforeEach(fn) {
+      test.before = fn
+      return this
+    },
+    afterEach(fn) {
+      test.after = fn
+      return this
+    },
+  }
 }
 
 psec.cycle = psec
@@ -130,9 +138,9 @@ async function run(bench) {
 
   let cycles = {}
   for (let i = 0; i < tests.length; i++) {
-    let { name, test } = tests[i]
+    const test = tests[i]
     try {
-      cycles[name] = await measure(name, test, bench)
+      cycles[test.name] = await measure(test, bench)
     } catch (e) {
       config.onError(e)
     }
@@ -144,8 +152,9 @@ async function run(bench) {
 }
 
 /** Measure a performance test */
-async function measure(name, test, bench) {
+async function measure(test, bench) {
   let { delay, minTime, minSamples, onCycle, onSample } = bench.config
+  let { name, run } = test
 
   delay *= 1e3
   minTime *= 1e3
@@ -163,15 +172,19 @@ async function measure(name, test, bench) {
   let t = process.hrtime()
 
   // synchronous test
-  if (test.length == 0) {
+  if (run.length == 0) {
     let start
     while (true) {
       bench.before.forEach(call)
+      if (test.before) test.before()
+
       start = process.hrtime()
-      test()
+      run()
 
       samples[n++] = clock(start)
       onSample(samples[n - 1], cycle)
+
+      if (test.after) test.after()
       bench.after.forEach(call)
 
       if (minTime <= clock(t) && minSamples <= n) {
@@ -188,14 +201,18 @@ async function measure(name, test, bench) {
     let start
     const next = function() {
       bench.before.forEach(call)
+      if (test.before) test.before()
+
       start = process.hrtime()
-      test(done)
+      run(done)
     }
 
     // called by the test function for every sample
     const done = function() {
       samples[n++] = clock(start)
       onSample(samples[n - 1], cycle)
+
+      if (test.after) test.after()
       bench.after.forEach(call)
 
       if (minTime <= clock(t) && minSamples <= n) {
