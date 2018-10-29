@@ -2,6 +2,7 @@ const defaults = {
   delay: 0.005,
   minTime: 1,
   minSamples: 5,
+  minWarmups: 1,
   onSample() {},
   onCycle,
   onError: console.error,
@@ -160,7 +161,14 @@ async function run(bench) {
 
 /** Measure a performance test */
 async function measure(test, bench) {
-  let { delay, minTime, minSamples, onCycle, onSample } = bench.config
+  let {
+    delay,
+    minTime,
+    minSamples,
+    minWarmups,
+    onCycle,
+    onSample,
+  } = bench.config
   let { name, run } = test
 
   delay *= 1e3
@@ -177,6 +185,7 @@ async function measure(test, bench) {
 
   let n = 0
   let t = process.hrtime()
+  let warmups = -1
 
   // synchronous test
   if (run.length == 0) {
@@ -187,15 +196,23 @@ async function measure(test, bench) {
 
       start = process.hrtime()
       run()
-
-      samples[n++] = clock(start)
-      onSample(samples[n - 1], cycle)
+      let sample = clock(start)
 
       if (test.after) test.after()
       bench.after.forEach(call)
 
-      if (minTime <= clock(t) && minSamples <= n) {
-        break // all done!
+      if (warmups == -1) {
+        warmups = Math.max(minWarmups, sample > 100 ? 1 : sample > 10 ? 5 : 50)
+      }
+      if (warmups > 0) {
+        warmups--
+      } else {
+        samples[n++] = sample
+        onSample(samples[n - 1], cycle)
+
+        if (minTime <= clock(t) && minSamples <= n) {
+          break // all done!
+        }
       }
 
       // wait then repeat
@@ -216,14 +233,23 @@ async function measure(test, bench) {
 
     // called by the test function for every sample
     const done = function() {
-      samples[n++] = clock(start)
-      onSample(samples[n - 1], cycle)
+      let sample = clock(start)
 
       if (test.after) test.after()
       bench.after.forEach(call)
 
-      if (minTime <= clock(t) && minSamples <= n) {
-        return cycle.done() // all done!
+      if (warmups == -1) {
+        warmups = Math.max(minWarmups, sample > 100 ? 1 : sample > 10 ? 5 : 50)
+      }
+      if (warmups > 0) {
+        warmups--
+      } else {
+        samples[n++] = sample
+        onSample(samples[n - 1], cycle)
+
+        if (minTime <= clock(t) && minSamples <= n) {
+          return cycle.done() // all done!
+        }
       }
 
       // wait then repeat
