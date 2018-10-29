@@ -102,7 +102,11 @@ psec.then = function(done, onError) {
 
 /** Configure the benchmark context */
 psec.configure = function(config) {
-  Object.assign(ctx.config, config)
+  for (let prop in config) {
+    if (prop in defaults) {
+      ctx.config[prop] = config[prop]
+    }
+  }
 }
 
 /** The default configuration */
