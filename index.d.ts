@@ -29,12 +29,19 @@ export function each<Cases extends any[]>(
 ): void
 
 type GlobalConfig = {
+  /** Delay between samples (in seconds) - default: `0.005` */
   delay: number
+  /** Minimum seconds per cycle - default: `1` */
   minTime: number
+  /** Minimum number of samples - default: `5` */
   minSamples: number
+  /** Called at the end of every sample */
   onSample(): void
+  /** Called at the end of every cycle */
   onCycle: (cycle: any, opts: any) => void
-  onError: (message?: any, ...optionalParams: any[]) => void
+  /** Called when a test has an uncaught error */
+  onError: (error: Error) => void
+  /** Called at the end of every suite */
   onFinish(): void
 }
 
