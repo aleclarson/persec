@@ -27,3 +27,18 @@ export function each<Cases extends any[]>(
   cases: Cases,
   setup: SuiteFn<Cases>
 ): void
+
+type GlobalConfig = {
+  delay: number
+  minTime: number
+  minSamples: number
+  onSample(): void
+  onCycle: (cycle: any, opts: any) => void
+  onError: (message?: any, ...optionalParams: any[]) => void
+  onFinish(): void
+}
+
+export function configure(config: Partial<GlobalConfig>): void
+
+// Benchmark defaults
+export declare const defaults: GlobalConfig
