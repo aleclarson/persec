@@ -85,9 +85,12 @@ psec.each = async function(cases, setup) {
   for (let i = 0; i < cases.length; i++) {
     try {
       ctx = new Benchmark()
-      await setup(cases[i])
+      let done = await setup(cases[i])
       ctx.run()
       await ctx.promise
+      if (typeof done == 'function') {
+        done()
+      }
     } catch (e) {
       console.error(e.stack)
     }
